@@ -478,19 +478,46 @@ public static class BYAMLParser
                     break;
             }
 
+        Encoding SHIFTJIS = Encoding.GetEncoding(932);
+        Encoding DefEnc = Encoding.Default;
+        Dictionary<string, string> tmpstr = new(); // first string is to be sorted, second is old
         if (keys.Count > 0)
         {
+            foreach (string s in keys)
+            {
+                tmpstr.Add(DefEnc.GetString(SHIFTJIS.GetBytes(s)), s);
+            }
+            var ls = tmpstr.Keys.ToList();
+            ls.Sort(StringComparer.Ordinal);
+
+            for (int s = 0; s < ls.Count; s++)
+            {
+                keys[s] = tmpstr[ls[s]];
+            }
+
             keyTable = new(
                 BYAMLNodeType.StringTable,
-                keys.OrderBy(x => x, StringComparer.Ordinal).ToList().ToArray()
+                keys.ToArray()
             );
         }
 
         if (strings.Count > 0)
         {
+            tmpstr.Clear(); // first string is edited, to be sorted, second is old
+            foreach (string s in strings)
+            {
+                tmpstr.Add(DefEnc.GetString(SHIFTJIS.GetBytes(s)), s);
+            }
+            var ls = tmpstr.Keys.ToList();
+            ls.Sort(StringComparer.Ordinal);
+
+            for (int s = 0; s < ls.Count; s++)
+            {
+                strings[s] = tmpstr[ls[s]];
+            }
             strTable = new(
                 BYAMLNodeType.StringTable,
-                strings.OrderBy(x => x, StringComparer.Ordinal).ToList().ToArray()
+                strings.ToArray()
             );
         }
 
