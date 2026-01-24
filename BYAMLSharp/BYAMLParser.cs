@@ -483,18 +483,21 @@ public static class BYAMLParser
         Dictionary<string, string> tmpstr = new(); // first string is to be sorted, second is old
         if (keys.Count > 0)
         {
-            foreach (string s in keys)
+            if (encoding.CodePage != Encoding.UTF8.CodePage) // skip if the strings are already UTF8
             {
-                tmpstr.Add(Encoding.UTF8.GetString(encoding.GetBytes(s)), s);
-            }
-            var ls = tmpstr.Keys.ToList();
-            ls.Sort(StringComparer.Ordinal);
+                foreach (string s in keys)
+                {
+                    tmpstr.Add(Encoding.UTF8.GetString(encoding.GetBytes(s)), s);
+                }
+                var ls = tmpstr.Keys.ToList();
+                ls.Sort(StringComparer.Ordinal);
 
-            for (int s = 0; s < ls.Count; s++)
-            {
-                keys[s] = tmpstr[ls[s]];
+                for (int s = 0; s < ls.Count; s++)
+                {
+                    keys[s] = tmpstr[ls[s]];
+                }
             }
-
+            else keys.Sort(StringComparer.Ordinal);
             keyTable = new(
                 BYAMLNodeType.StringTable,
                 keys.ToArray()
@@ -503,18 +506,22 @@ public static class BYAMLParser
 
         if (strings.Count > 0)
         {
-            tmpstr.Clear(); // first string is edited, to be sorted, second is old
-            foreach (string s in strings)
+            if (encoding.CodePage != Encoding.UTF8.CodePage)
             {
-                tmpstr.Add(Encoding.UTF8.GetString(encoding.GetBytes(s)), s);
-            }
-            var ls = tmpstr.Keys.ToList();
-            ls.Sort(StringComparer.Ordinal);
+                tmpstr.Clear();
+                foreach (string s in strings)
+                {
+                    tmpstr.Add(Encoding.UTF8.GetString(encoding.GetBytes(s)), s);
+                }
+                var ls = tmpstr.Keys.ToList();
+                ls.Sort(StringComparer.Ordinal);
 
-            for (int s = 0; s < ls.Count; s++)
-            {
-                strings[s] = tmpstr[ls[s]];
+                for (int s = 0; s < ls.Count; s++)
+                {
+                    strings[s] = tmpstr[ls[s]];
+                }
             }
+            else strings.Sort(StringComparer.Ordinal);
             strTable = new(
                 BYAMLNodeType.StringTable,
                 strings.ToArray()
