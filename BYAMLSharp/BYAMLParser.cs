@@ -25,6 +25,7 @@ public static class BYAMLParser
     {
         GenerateTables(
             byaml.RootNode,
+            byaml.Encoding,
             byaml.IsMKBYAML,
             out BYAMLNode keyTableNode,
             out BYAMLNode strTableNode,
@@ -421,6 +422,7 @@ public static class BYAMLParser
 
     private static void GenerateTables(
         BYAMLNode root,
+        Encoding encoding,
         bool isMKBYAML,
         out BYAMLNode keyTable,
         out BYAMLNode strTable,
@@ -478,14 +480,12 @@ public static class BYAMLParser
                     break;
             }
 
-        Encoding SHIFTJIS = Encoding.GetEncoding(932);
-        Encoding DefEnc = Encoding.Default;
         Dictionary<string, string> tmpstr = new(); // first string is to be sorted, second is old
         if (keys.Count > 0)
         {
             foreach (string s in keys)
             {
-                tmpstr.Add(DefEnc.GetString(SHIFTJIS.GetBytes(s)), s);
+                tmpstr.Add(Encoding.UTF8.GetString(encoding.GetBytes(s)), s);
             }
             var ls = tmpstr.Keys.ToList();
             ls.Sort(StringComparer.Ordinal);
@@ -506,7 +506,7 @@ public static class BYAMLParser
             tmpstr.Clear(); // first string is edited, to be sorted, second is old
             foreach (string s in strings)
             {
-                tmpstr.Add(DefEnc.GetString(SHIFTJIS.GetBytes(s)), s);
+                tmpstr.Add(Encoding.UTF8.GetString(encoding.GetBytes(s)), s);
             }
             var ls = tmpstr.Keys.ToList();
             ls.Sort(StringComparer.Ordinal);
